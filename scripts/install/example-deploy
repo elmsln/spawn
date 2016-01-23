@@ -1,0 +1,12 @@
+#!/bin/bash
+# you should be able to copy and paste these 3 lines into a bash
+# prompt and effectively install and completely optimize spawn
+# on a new machine that has just been created
+# no dependencies to worry about, just take the red pill and copy
+# and paste on a fresh server.
+# The 3rd line you'll want to fill out with your own values if you
+# are spinning this up to actually run somewhere, but the example input
+# will work to give you a taste of what its about to do when your ready for
+# the real deal to be deployed somewhere.
+yes | yum -y install wget git && git clone https://github.com/elmsln/spawn.git /var/www/spawn && bash /var/www/spawn/scripts/install/install-spawn.sh
+cd $HOME && source .bashrc

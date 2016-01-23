@@ -1,0 +1,6 @@
+#START SPAWN#
+
+#SPAWN job processing
+* * * * * root su -c 'HOME=/home/spawn/ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/spawn/.composer/vendor/bin /usr/local/bin/spawn-job/spawn-job.sh >> /var/www/spawn/config/logs/spawn-job.log' spawn
+
+#END SPAWN#
