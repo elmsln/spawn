@@ -23,7 +23,7 @@ securityDescription=input3
 sgId="$(aws ec2 create-security-group --group-name $mySecurityGroup --description "$securityDescription" --query 'GroupId')"
 amiId=input4
 count=input5
-type=input6
+iType=input6
 
 # Create key pair and capture the output for the .pem file 
 aws ec2 create-key-pair --key-name $key-name --query 'KeyMaterial' > $key-name.pem
