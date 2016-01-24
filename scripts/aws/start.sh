@@ -1,18 +1,3 @@
-#!/bin/sh
-
-# You will want to make sure that you have pip installed before doing anything 
-# Run as root
-curl -O https://bootstrap.pypa.io/get-pip.py
-
-# Install pip as root
-python get-pip.py
-
-# Install AWS
-pip install awscli
-
-# Now we can configure... but we will need keys and stuff. 
-aws configure
-
 #! /bin/bash
 ######### NOT TESTED THIS IS JUST SCAFFOLDING #########################
 
