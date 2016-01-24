@@ -36,4 +36,4 @@ chmod 400 $key-name.pem
 aws ec2 create-security-group --group-name $mySecurityGroup --description "$securityDescription" --query 'GroupId' 
 
 # Create a new instance to run stuff on
-aws ec2 run-instances --image-id amiId --count $count --instance-type type --key-name keyname --security-group-ids $sgId
+aws ec2 run-instances --image-id amiId --count $count --instance-type $iType --key-name keyname --security-group-ids $sgId
