@@ -23,3 +23,5 @@ aws ec2 create-security-group --group-name $defaultSecurityGroup --description "
 
 # Create a new instance to run stuff on
 aws ec2 run-instances --image-id amiId --count $count --instance-type $iType --key-name keyname --security-group-ids $sgId
+
+#todo = figure out where to go next... but this is all very easy to use. ;)
