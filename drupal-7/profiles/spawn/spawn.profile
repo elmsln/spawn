@@ -77,11 +77,10 @@ function spawn_client_form_submit($form, &$form_state) {
     'key' => $values['aws_key'],
     'secret' => $values['aws_secret'],
     'region' => $values['aws_region'],
-    'output' => $values['aws_ouput'],
-    'init' => $values['client_mail'],
+    'output' => $values['aws_output'],
   );
   // todo process the form into a shell execution where it makes the shell run
   // => aws configure
-  $aws_configure = shell_exec(string $cmd); //<< figure this out. ;)
-
+  //$aws_configure = shell_exec(string $cmd); //<< figure this out. ;)
+  drupal_set_message('nice dude');
 }
