@@ -13,5 +13,3 @@ python get-pip.py
 # Install AWS
 pip install awscli
 
-# Now we can configure... but we will need keys and stuff this will prompt you for your IAM user account's credentials. 
-aws configure
