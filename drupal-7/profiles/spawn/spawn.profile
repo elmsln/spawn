@@ -79,8 +79,8 @@ function spawn_client_form_submit($form, &$form_state) {
     'region' => $values['aws_region'],
     'output' => $values['aws_output'],
   );
-  // todo process the form into a shell execution where it makes the shell run
-  // => aws configure
-  //$aws_configure = shell_exec(string $cmd); //<< figure this out. ;)
-  drupal_set_message('nice dude');
+  $configure = '';
+  $configure .= shell_exec('ls -la');
+  $configure .= shell_exec('whoami');
+  echo "<pre>$configure</pre>";
 }

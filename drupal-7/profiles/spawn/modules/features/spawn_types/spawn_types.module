@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the Spawn types feature.
- */
-
-include_once 'spawn_types.features.inc';
