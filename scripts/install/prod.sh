@@ -1,6 +1,5 @@
 #!/bin/bash
-# a script to install server dependencies
-
+##### - INTRO - #####
 # provide messaging colors for output to console
 txtbld=$(tput bold)             # Bold
 bldgrn=$(tput setaf 2) #  green
@@ -17,6 +16,8 @@ timestamp(){
   date +"%s"
 }
 start="$(timestamp)"
+
+##### - BEGIN SERVER LEVEL - #####
 
 # make sure we're up to date
 yes | yum update
@@ -60,6 +61,9 @@ touch /etc/sudoers.d/spawn
 echo "spawn ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/spawn
 chmod 440 /etc/sudoers.d/spawn
 
+##### - END SERVER LEVEL - #####
+
+##### - PACKAGE LEVEL - #####
 # PHP
 # The first pool
 cat php/www.conf > /etc/php-fpm.d/www.conf
@@ -110,8 +114,9 @@ echo "apc.rfc1867_ttl=3600" >> /etc/php.d/40-apcu.ini
 # Minor Security config
 echo IncludeOptional conf.security.d/*.conf >> /etc/httpd/conf/httpd.conf
 
-# Fix date timezone errors
-sed -i 's#;date.timezone =#date.timezone = "America/New_York"#g' /etc/php.ini
+##### - END PACKAGE LEVEL - #####
+
+##### - BEGIN SERVICE LEVEL - #####
 
 # Make sue services stay on after reboot
 systemctl enable httpd.service
@@ -126,13 +131,22 @@ systemctl start php-fpm.service
 systemctl start  mysqld.service
 systemctl start httpd.service
 
+##### - END SERVICE LEVEL - #####
+
+
+##### - TASKS - #####
+
+# Fix date timezone errors
+sed -i 's#;date.timezone =#date.timezone = "America/New_York"#g' /etc/php.ini
+
 # Install Drush globally.
 curl -sS https://getcomposer.org/installer | php
 sudo mv composer.phar /usr/local/bin/composer
 ln -s /usr/local/bin/composer /usr/bin/composer
 
-# TODO need to optimize
+# TODO CREATE CRON
 #ln -s /var/www/spawn/scripts/spawn-job /usr/local/bin/spawn-job
 
+##### - OUTRO - #####
 end="$(timestamp)"
 spawnecho "This took $(expr $end - $start) seconds to complete the whole thing!"
