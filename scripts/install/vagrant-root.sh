@@ -139,7 +139,7 @@ systemctl start httpd.service
 chown -R vagrant:vagrant /var/www/html
 
 # Move Drupal into place
-cp /vagrant/drupal-7/ ./ -rf
+cp /vagrant/drupal-7/ /var/www/html/ -rf
 # Fix date timezone errors
 sed -i 's#;date.timezone =#date.timezone = "America/New_York"#g' /etc/php.ini
 
