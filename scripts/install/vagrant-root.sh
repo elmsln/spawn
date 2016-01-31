@@ -22,11 +22,22 @@ start="$(timestamp)"
 yes | yum update
 
 # using yum to install the main packages
-yes | yum -y install curl uuid patch git nano gcc make mysql mysql-server httpd
+yes | yum -y install curl uuid patch git nano gcc make httpd
 
-# amazon packages on 56
-yes | yum -y install php56 php56-common php56-opcache php56-fpm php56-pecl-apcu php56-cli php56-pdo php56-mysqlnd php56-gd php56-mbstring php56-mcrypt php56-xml php56-devel php56-pecl-ssh2 --skip-broken
-yes | yum groupinstall 'Development Tools'
+# get some repos
+rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+wget http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
+rpm -Uvh remi-release-7.rpm
+
+# get latest mysql
+yum install -y http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm 
+yum install -y mysql mysql-server
+systemctl enable mysqld.service
+/bin/systemctl start  mysqld.service
+yum update -y
+
+yum install -y --enablerepo=remi-php56 php php-apcu php-fpm php-opcache php-cli php-common php-gd php-mbstring php-mcrypt php-pdo php-xml php-mysqlnd
+
 pecl channel-update pecl.php.net
 
 # set httpd_can_sendmail so drupal mails go out
