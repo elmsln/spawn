@@ -36,6 +36,7 @@ systemctl enable mysqld.service
 /bin/systemctl start  mysqld.service
 yum update -y
 
+# Install PHP from REMI
 yum install -y --enablerepo=remi-php56 php php-apcu php-fpm php-opcache php-cli php-common php-gd php-mbstring php-mcrypt php-pdo php-xml php-mysqlnd
 
 pecl channel-update pecl.php.net
