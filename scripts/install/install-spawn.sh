@@ -17,20 +17,20 @@ timestamp(){
   date +"%s"
 }
 start="$(timestamp)"
+
 # make sure we're up to date
 yes | yum update
+
 # using yum to install the main packages
 yes | yum -y install curl uuid patch git nano gcc make mysql mysql-server httpd
+
 # amazon packages on 56
 yes | yum -y install php56 php56-common php56-opcache php56-fpm php56-pecl-apcu php56-cli php56-pdo php56-mysqlnd php56-gd php56-mbstring php56-mcrypt php56-xml php56-devel php56-pecl-ssh2 --skip-broken
-
 yes | yum groupinstall 'Development Tools'
 pecl channel-update pecl.php.net
 
 # set httpd_can_sendmail so drupal mails go out
 setsebool -P httpd_can_sendmail on
-# start mysql to ensure that it is running
-/etc/init.d/mysqld restart
 
 # optimize apc
 echo "" >> /etc/php.d/40-apcu.ini
@@ -39,22 +39,10 @@ echo "apc.rfc1867_prefix=upload_" >> /etc/php.d/40-apcu.ini
 echo "apc.rfc1867_name=APC_UPLOAD_PROGRESS" >> /etc/php.d/40-apcu.ini
 echo "apc.rfc1867_freq=0" >> /etc/php.d/40-apcu.ini
 echo "apc.rfc1867_ttl=3600" >> /etc/php.d/40-apcu.ini
-# optimize opcodecache for php 5.5
-echo "opcache.enable=1" >> /etc/php.d/10-opcache.ini
-echo "opcache.memory_consumption=256" >> /etc/php.d/10-opcache.ini
-echo "opcache.max_accelerated_files=100000" >> /etc/php.d/10-opcache.ini
-echo "opcache.max_wasted_percentage=10" >> /etc/php.d/10-opcache.ini
-echo "opcache.revalidate_freq=2" >> /etc/php.d/10-opcache.ini
-echo "opcache.validate_timestamps=1" >> /etc/php.d/10-opcache.ini
-echo "opcache.fast_shutdown=1" >> /etc/php.d/10-opcache.ini
-echo "opcache.interned_strings_buffer=8" >> /etc/php.d/10-opcache.ini
-echo "opcache.enable_cli=1" >> /etc/php.d/10-opcache.ini
+
 # remove default apc file that might exist
 yes | rm /etc/php-5.6.d/apc.ini
 yes | rm /etc/php.d/apc.ini
-
-/etc/init.d/httpd restart
-/etc/init.d/mysqld restart
 
 # add a user group of spawn
 /usr/sbin/groupadd spawn
@@ -67,12 +55,70 @@ touch /etc/sudoers.d/spawn
 # this user can do anything basically since it has to create so much stuff
 echo "spawn ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/spawn
 chmod 440 /etc/sudoers.d/spawn
-# replicate the .composer directory for this user since composer doesn't like sudo -i
-cp -R $HOME/.composer /home/spawn/
-chown -R spawn:spawn /home/spawn/
-chmod -R 770 /home/spawn
-# copy spawn cron job into scope
-cat /var/www/spawn/scripts/server/crontab.txt >> /etc/crontab
+
+# PHP
+# The first pool
+cat /vagrant/php/www.conf > /etc/php-fpm.d/www.conf
+
+#opcache settings
+cat /vagrant/php/opcache.ini > /etc/php.d/10-opcache.ini
+
+#disable mod_php
+cat /vagrant/php/php.conf > /etc/httpd/conf.d/php.conf
+
+#disable some un-needed apache modules.
+cat /vagrant/modules/00-base.conf > /etc/httpd/conf.modules.d/00-base.conf
+cat /vagrant/modules/00-dav.conf > /etc/httpd/conf.modules.d/00-dav.conf
+cat /vagrant/modules/00-lua.conf > /etc/httpd/conf.modules.d/00-lua.conf
+cat /vagrant/modules/00-mpm.conf > /etc/httpd/conf.modules.d/00-mpm.conf
+cat /vagrant/modules/00-proxy.conf > /etc/httpd/conf.modules.d/00-proxy.conf
+cat /vagrant/modules/01-cgi.conf > /etc/httpd/conf.modules.d/01-cgi.conf
+
+# BASIC PERFORMANCE SETTINGS
+mkdir /etc/httpd/conf.performance.d/
+cat /vagrant/performance/compression.conf > /etc/httpd/conf.performance.d/compression.conf
+cat /vagrant/performance/content_transformation.conf > /etc/httpd/conf.performance.d/content_transformation.conf
+cat /vagrant/performance/etags.conf > /etc/httpd/conf.performance.d/etags.conf
+cat /vagrant/performance/expires_headers.conf > /etc/httpd/conf.performance.d/expires_headers.conf
+cat /vagrant/performance/file_concatenation.conf > /etc/httpd/conf.performance.d/file_concatenation.conf
+cat /vagrant/performance/filename-based_cache_busting.conf > /etc/httpd/conf.performance.d/filename-based_cache_busting.conf
+
+# BASIC SECURITY SETTINGS
+mkdir /etc/httpd/conf.security.d/
+cat /vagrant/security/apache_default.conf > /etc/httpd/conf.security.d/apache_default.conf
+
+# our domain config
+mkdir /etc/httpd/conf.sites.d
+echo IncludeOptional conf.sites.d/*.conf >> /etc/httpd/conf/httpd.conf
+cat /vagrant/domains/80-domain.conf > /etc/httpd/conf.sites.d/test.conf
+
+# our performance config
+echo IncludeOptional conf.performance.d/*.conf >> /etc/httpd/conf/httpd.conf
+
+# our security config
+echo IncludeOptional conf.security.d/*.conf >> /etc/httpd/conf/httpd.conf
+
+# fix date timezone errors
+sed -i 's#;date.timezone =#date.timezone = "America/New_York"#g' /etc/php.ini
+
+# Make sue services stay on after reboot
+systemctl enable httpd.service
+systemctl enable mysqld.service
+systemctl enable php-fpm.service
+
+sudo systemctl stop firewalld.service
+
+# Start all the services we use.
+systemctl start php-fpm.service
+systemctl start  mysqld.service
+systemctl start httpd.service
+
+
+
+# Install Drush globally.
+curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+ln -s /usr/local/bin/composer /usr/bin/composer
 
 # TODO need to optimize
 #ln -s /var/www/spawn/scripts/spawn-job /usr/local/bin/spawn-job
