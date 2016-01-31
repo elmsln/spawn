@@ -32,14 +32,6 @@ pecl channel-update pecl.php.net
 # set httpd_can_sendmail so drupal mails go out
 setsebool -P httpd_can_sendmail on
 
-# optimize apc
-echo "" >> /etc/php.d/40-apcu.ini
-echo "apc.rfc1867=1" >> /etc/php.d/40-apcu.ini
-echo "apc.rfc1867_prefix=upload_" >> /etc/php.d/40-apcu.ini
-echo "apc.rfc1867_name=APC_UPLOAD_PROGRESS" >> /etc/php.d/40-apcu.ini
-echo "apc.rfc1867_freq=0" >> /etc/php.d/40-apcu.ini
-echo "apc.rfc1867_ttl=3600" >> /etc/php.d/40-apcu.ini
-
 # remove default apc file that might exist
 yes | rm /etc/php-5.6.d/apc.ini
 yes | rm /etc/php.d/apc.ini
@@ -60,13 +52,13 @@ chmod 440 /etc/sudoers.d/spawn
 # The first pool
 cat /vagrant/php/www.conf > /etc/php-fpm.d/www.conf
 
-#opcache settings
+# OPCACHE settings
 cat /vagrant/php/opcache.ini > /etc/php.d/10-opcache.ini
 
-#disable mod_php
+# Disable mod_php
 cat /vagrant/php/php.conf > /etc/httpd/conf.d/php.conf
 
-#disable some un-needed apache modules.
+# Disable some un-needed apache modules.
 cat /vagrant/modules/00-base.conf > /etc/httpd/conf.modules.d/00-base.conf
 cat /vagrant/modules/00-dav.conf > /etc/httpd/conf.modules.d/00-dav.conf
 cat /vagrant/modules/00-lua.conf > /etc/httpd/conf.modules.d/00-lua.conf
@@ -87,18 +79,26 @@ cat /vagrant/performance/filename-based_cache_busting.conf > /etc/httpd/conf.per
 mkdir /etc/httpd/conf.security.d/
 cat /vagrant/security/apache_default.conf > /etc/httpd/conf.security.d/apache_default.conf
 
-# our domain config
+# BASIC DOMAIN 
 mkdir /etc/httpd/conf.sites.d
 echo IncludeOptional conf.sites.d/*.conf >> /etc/httpd/conf/httpd.conf
 cat /vagrant/domains/80-domain.conf > /etc/httpd/conf.sites.d/test.conf
 
-# our performance config
+# Performance
 echo IncludeOptional conf.performance.d/*.conf >> /etc/httpd/conf/httpd.conf
 
-# our security config
+# APC optimize
+echo "" >> /etc/php.d/40-apcu.ini
+echo "apc.rfc1867=1" >> /etc/php.d/40-apcu.ini
+echo "apc.rfc1867_prefix=upload_" >> /etc/php.d/40-apcu.ini
+echo "apc.rfc1867_name=APC_UPLOAD_PROGRESS" >> /etc/php.d/40-apcu.ini
+echo "apc.rfc1867_freq=0" >> /etc/php.d/40-apcu.ini
+echo "apc.rfc1867_ttl=3600" >> /etc/php.d/40-apcu.ini
+
+# Minor Security config
 echo IncludeOptional conf.security.d/*.conf >> /etc/httpd/conf/httpd.conf
 
-# fix date timezone errors
+# Fix date timezone errors
 sed -i 's#;date.timezone =#date.timezone = "America/New_York"#g' /etc/php.ini
 
 # Make sue services stay on after reboot
@@ -106,14 +106,13 @@ systemctl enable httpd.service
 systemctl enable mysqld.service
 systemctl enable php-fpm.service
 
+# This is moslty for DEV
 sudo systemctl stop firewalld.service
 
 # Start all the services we use.
 systemctl start php-fpm.service
 systemctl start  mysqld.service
 systemctl start httpd.service
-
-
 
 # Install Drush globally.
 curl -sS https://getcomposer.org/installer | php
