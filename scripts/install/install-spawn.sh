@@ -75,8 +75,7 @@ chmod -R 770 /home/spawn
 cat /var/www/spawn/scripts/server/crontab.txt >> /etc/crontab
 
 # TODO need to optimize
-
-ln -s /var/www/spawn/scripts/spawn-job /usr/local/bin/spawn-job
+#ln -s /var/www/spawn/scripts/spawn-job /usr/local/bin/spawn-job
 
 cd $HOME
 source .bashrc
