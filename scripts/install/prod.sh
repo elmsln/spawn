@@ -1,44 +1,64 @@
-#/!/bin/bash
+#!/bin/bash
+# a script to install server dependencies
 
-# install apache
-yum install httpd -y
+# provide messaging colors for output to console
+txtbld=$(tput bold)             # Bold
+bldgrn=$(tput setaf 2) #  green
+bldred=${txtbld}$(tput setaf 1) #  red
+txtreset=$(tput sgr0)
+spawnecho(){
+  echo "${bldgrn}$1${txtreset}"
+}
+spawnwarn(){
+  echo "${bldred}$1${txtreset}"
+}
+# Define seconds timestamp
+timestamp(){
+  date +"%s"
+}
+start="$(timestamp)"
 
-# get some repos
-rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-wget http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
-rpm -Uvh remi-release-7.rpm
+# make sure we're up to date
+yes | yum update
 
-# get latest mysql
-yum install -y http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm 
-yum install -y mysql mysql-server
-systemctl enable mysqld.service
-/bin/systemctl start  mysqld.service
-yum update -y
+# using yum to install the main packages
+yes | yum -y install curl uuid patch git nano gcc make mysql mysql-server httpd
 
-yum install -y --enablerepo=remi-php56 php php-apcu php-fpm php-opcache php-cli php-common php-gd php-mbstring php-mcrypt php-pdo php-xml php-mysqlnd
+# amazon packages on 56
+yes | yum -y install php56 php56-common php56-opcache php56-fpm php56-pecl-apcu php56-cli php56-pdo php56-mysqlnd php56-gd php56-mbstring php56-mcrypt php56-xml php56-devel php56-pecl-ssh2 --skip-broken
+yes | yum groupinstall 'Development Tools'
+pecl channel-update pecl.php.net
 
-# varnish
-rpm --nosignature -i https://repo.varnish-cache.org/redhat/varnish-4.0.el7.rpm
-yum install -y varnish
+# set httpd_can_sendmail so drupal mails go out
+setsebool -P httpd_can_sendmail on
 
-# VARNISH
-cat varnish/default.vcl > /etc/varnish/default.vcl
-cat varnish/varnish.params > /etc/varnish/varnish.params
+# remove default apc file that might exist
+yes | rm /etc/php-5.6.d/apc.ini
+yes | rm /etc/php.d/apc.ini
 
-# Varnish can listen
-sed -i 's/Listen 80/Listen 8080/g' /etc/httpd/conf/httpd.conf
+# add a user group of spawn
+/usr/sbin/groupadd spawn
+# add the system user and put them in the above group
+/usr/sbin/useradd -g spawn spawn -m -d /home/spawn -s /bin/bash -c "Spawn task runner"
+
+# create a new file inside sudoers.d
+touch /etc/sudoers.d/spawn
+
+# this user can do anything basically since it has to create so much stuff
+echo "spawn ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/spawn
+chmod 440 /etc/sudoers.d/spawn
 
 # PHP
 # The first pool
 cat php/www.conf > /etc/php-fpm.d/www.conf
 
-#opcache settings
-cat php/opcache.ini > /etc/php.d/opcache.ini
+# OPCACHE settings
+cat php/opcache.ini > /etc/php.d/10-opcache.ini
 
-#disable mod_php
+# Disable mod_php
 cat php/php.conf > /etc/httpd/conf.d/php.conf
 
-#disable some un-needed modules.
+# Disable some un-needed apache modules.
 cat modules/00-base.conf > /etc/httpd/conf.modules.d/00-base.conf
 cat modules/00-dav.conf > /etc/httpd/conf.modules.d/00-dav.conf
 cat modules/00-lua.conf > /etc/httpd/conf.modules.d/00-lua.conf
@@ -59,42 +79,48 @@ cat performance/filename-based_cache_busting.conf > /etc/httpd/conf.performance.
 mkdir /etc/httpd/conf.security.d/
 cat security/apache_default.conf > /etc/httpd/conf.security.d/apache_default.conf
 
-# our domain config
+# BASIC DOMAIN 
 mkdir /etc/httpd/conf.sites.d
 echo IncludeOptional conf.sites.d/*.conf >> /etc/httpd/conf/httpd.conf
-cat domains/8080-domain.conf > /etc/httpd/conf.sites.d/test.conf
+cat domains/80-domain.conf > /etc/httpd/conf.sites.d/test.conf
 
-# our performance config
+# Performance
 echo IncludeOptional conf.performance.d/*.conf >> /etc/httpd/conf/httpd.conf
 
-# our security config
+# APC optimize
+echo "" >> /etc/php.d/40-apcu.ini
+echo "apc.rfc1867=1" >> /etc/php.d/40-apcu.ini
+echo "apc.rfc1867_prefix=upload_" >> /etc/php.d/40-apcu.ini
+echo "apc.rfc1867_name=APC_UPLOAD_PROGRESS" >> /etc/php.d/40-apcu.ini
+echo "apc.rfc1867_freq=0" >> /etc/php.d/40-apcu.ini
+echo "apc.rfc1867_ttl=3600" >> /etc/php.d/40-apcu.ini
+
+# Minor Security config
 echo IncludeOptional conf.security.d/*.conf >> /etc/httpd/conf/httpd.conf
 
-# fix date timezone errors
+# Fix date timezone errors
 sed -i 's#;date.timezone =#date.timezone = "America/New_York"#g' /etc/php.ini
 
-# FIREWALL
-systemctl start firewalld.service
-systemctl enable firewalld.service
-firewall-cmd --permanent --add-port=80/tcp
-firewall-cmd --permanent --add-port=8080/tcp
-firewall-cmd --permanent --add-port=22/tcp
-systemctl restart firewalld.service
-
 # Make sue services stay on after reboot
-
 systemctl enable httpd.service
 systemctl enable mysqld.service
 systemctl enable php-fpm.service
-systemctl enable varnish.service
+
+# This is moslty for DEV
+sudo systemctl stop firewalld.service
 
 # Start all the services we use.
 systemctl start php-fpm.service
 systemctl start  mysqld.service
 systemctl start httpd.service
-systemctl start varnish.service
 
 # Install Drush globally.
 curl -sS https://getcomposer.org/installer | php
 sudo mv composer.phar /usr/local/bin/composer
 ln -s /usr/local/bin/composer /usr/bin/composer
+
+# TODO need to optimize
+#ln -s /var/www/spawn/scripts/spawn-job /usr/local/bin/spawn-job
+
+end="$(timestamp)"
+spawnecho "This took $(expr $end - $start) seconds to complete the whole thing!"
