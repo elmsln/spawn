@@ -66,7 +66,6 @@ chmod 440 /etc/sudoers.d/spawn
 echo IncludeOptional conf.security.d/*.conf >> /etc/httpd/conf/httpd.conf
 echo IncludeOptional conf.sites.d/*.conf >> /etc/httpd/conf/httpd.conf
 echo IncludeOptional conf.performance.d/*.conf >> /etc/httpd/conf/httpd.conf
-echo IncludeOptional conf.modules.d/*.conf >> /etc/httpd/conf/httpd.conf
 
 ##### - END SERVER LEVEL - #####
 
