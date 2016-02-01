@@ -58,8 +58,8 @@ yes | rm /etc/php.d/apc.ini
 touch /etc/sudoers.d/spawn
 
 # this user can do anything basically since it has to create so much stuff
-echo "spawn    ALL=(ALL)      NOPASSWD: ALL" > /etc/sudoers.d/spawn
-echo "apache   ALL=(spawn)    /bin/bash"
+echo "spawn    ALL=(ALL)      NOPASSWD: ALL" >> /etc/sudoers.d/spawn
+echo "apache   ALL=(spawn)    /bin/bash" >> /etc/sudoers.d/spawn
 chmod 440 /etc/sudoers.d/spawn
 
 ##### - END SERVER LEVEL - #####
