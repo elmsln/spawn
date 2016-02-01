@@ -62,6 +62,12 @@ echo "spawn    ALL=(ALL)      NOPASSWD: ALL" >> /etc/sudoers.d/spawn
 echo "apache   ALL=(spawn)    /bin/bash" >> /etc/sudoers.d/spawn
 chmod 440 /etc/sudoers.d/spawn
 
+# Add in some new file locations at the bottom of APACHE config.
+echo IncludeOptional conf.security.d/*.conf >> /etc/httpd/conf/httpd.conf
+echo IncludeOptional conf.sites.d/*.conf >> /etc/httpd/conf/httpd.conf
+echo IncludeOptional conf.performance.d/*.conf >> /etc/httpd/conf/httpd.conf
+echo IncludeOptional conf.modules.d/*.conf >> /etc/httpd/conf/httpd.conf
+
 ##### - END SERVER LEVEL - #####
 
 ##### - PACKAGE LEVEL - #####
@@ -98,11 +104,10 @@ cat /vagrant/scripts/security/apache_default.conf > /etc/httpd/conf.security.d/a
 
 # BASIC DOMAIN 
 mkdir /etc/httpd/conf.sites.d
-echo IncludeOptional conf.sites.d/*.conf >> /etc/httpd/conf/httpd.conf
 cat /vagrant/scripts/domains/80-domain.conf > /etc/httpd/conf.sites.d/test.conf
 
 # Performance
-echo IncludeOptional conf.performance.d/*.conf >> /etc/httpd/conf/httpd.conf
+
 
 # APC optimize
 echo "" >> /etc/php.d/40-apcu.ini
@@ -112,8 +117,7 @@ echo "apc.rfc1867_name=APC_UPLOAD_PROGRESS" >> /etc/php.d/40-apcu.ini
 echo "apc.rfc1867_freq=0" >> /etc/php.d/40-apcu.ini
 echo "apc.rfc1867_ttl=3600" >> /etc/php.d/40-apcu.ini
 
-# Minor Security config
-echo IncludeOptional conf.security.d/*.conf >> /etc/httpd/conf/httpd.conf
+
 
 ##### - END PACKAGE LEVEL - #####
 
