@@ -58,7 +58,8 @@ yes | rm /etc/php.d/apc.ini
 touch /etc/sudoers.d/spawn
 
 # this user can do anything basically since it has to create so much stuff
-echo "spawn ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/spawn
+echo "spawn    ALL=(ALL)      NOPASSWD: ALL" > /etc/sudoers.d/spawn
+echo "apache   ALL=(spawn)    /bin/bash"
 chmod 440 /etc/sudoers.d/spawn
 
 ##### - END SERVER LEVEL - #####
@@ -66,39 +67,39 @@ chmod 440 /etc/sudoers.d/spawn
 ##### - PACKAGE LEVEL - #####
 # PHP
 # The first pool
-cat /vagrant/php/www.conf > /etc/php-fpm.d/www.conf
+cat /vagrant/scripts/php/www.conf > /etc/php-fpm.d/www.conf
 
 # OPCACHE settings
-cat /vagrant/php/opcache.ini > /etc/php.d/10-opcache.ini
+cat /vagrant/scripts/php/opcache.ini > /etc/php.d/10-opcache.ini
 
 # Disable mod_php
-cat /vagrant/php/php.conf > /etc/httpd/conf.d/php.conf
+cat /vagrant/scripts/php/php.conf > /etc/httpd/conf.d/php.conf
 
 # Disable some un-needed apache modules.
-cat /vagrant/modules/00-base.conf > /etc/httpd/conf.modules.d/00-base.conf
-cat /vagrant/modules/00-dav.conf > /etc/httpd/conf.modules.d/00-dav.conf
-cat /vagrant/modules/00-lua.conf > /etc/httpd/conf.modules.d/00-lua.conf
-cat /vagrant/modules/00-mpm.conf > /etc/httpd/conf.modules.d/00-mpm.conf
-cat /vagrant/modules/00-proxy.conf > /etc/httpd/conf.modules.d/00-proxy.conf
-cat /vagrant/modules/01-cgi.conf > /etc/httpd/conf.modules.d/01-cgi.conf
+cat /vagrant/scripts/modules/00-base.conf > /etc/httpd/conf.modules.d/00-base.conf
+cat /vagrant/scripts/modules/00-dav.conf > /etc/httpd/conf.modules.d/00-dav.conf
+cat /vagrant/scripts/modules/00-lua.conf > /etc/httpd/conf.modules.d/00-lua.conf
+cat /vagrant/scripts/modules/00-mpm.conf > /etc/httpd/conf.modules.d/00-mpm.conf
+cat /vagrant/scripts/modules/00-proxy.conf > /etc/httpd/conf.modules.d/00-proxy.conf
+cat /vagrant/scripts/modules/01-cgi.conf > /etc/httpd/conf.modules.d/01-cgi.conf
 
 # BASIC PERFORMANCE SETTINGS
 mkdir /etc/httpd/conf.performance.d/
-cat /vagrant/performance/compression.conf > /etc/httpd/conf.performance.d/compression.conf
-cat /vagrant/performance/content_transformation.conf > /etc/httpd/conf.performance.d/content_transformation.conf
-cat /vagrant/performance/etags.conf > /etc/httpd/conf.performance.d/etags.conf
-cat /vagrant/performance/expires_headers.conf > /etc/httpd/conf.performance.d/expires_headers.conf
-cat /vagrant/performance/file_concatenation.conf > /etc/httpd/conf.performance.d/file_concatenation.conf
-cat /vagrant/performance/filename-based_cache_busting.conf > /etc/httpd/conf.performance.d/filename-based_cache_busting.conf
+cat /vagrant/scripts/performance/compression.conf > /etc/httpd/conf.performance.d/compression.conf
+cat /vagrant/scripts/performance/content_transformation.conf > /etc/httpd/conf.performance.d/content_transformation.conf
+cat /vagrant/scripts/performance/etags.conf > /etc/httpd/conf.performance.d/etags.conf
+cat /vagrant/scripts/performance/expires_headers.conf > /etc/httpd/conf.performance.d/expires_headers.conf
+cat /vagrant/scripts/performance/file_concatenation.conf > /etc/httpd/conf.performance.d/file_concatenation.conf
+cat /vagrant/scripts/performance/filename-based_cache_busting.conf > /etc/httpd/conf.performance.d/filename-based_cache_busting.conf
 
 # BASIC SECURITY SETTINGS
 mkdir /etc/httpd/conf.security.d/
-cat /vagrant/security/apache_default.conf > /etc/httpd/conf.security.d/apache_default.conf
+cat /vagrant/scripts/security/apache_default.conf > /etc/httpd/conf.security.d/apache_default.conf
 
 # BASIC DOMAIN 
 mkdir /etc/httpd/conf.sites.d
 echo IncludeOptional conf.sites.d/*.conf >> /etc/httpd/conf/httpd.conf
-cat /vagrant/domains/80-domain.conf > /etc/httpd/conf.sites.d/test.conf
+cat /vagrant/scripts/domains/80-domain.conf > /etc/httpd/conf.sites.d/test.conf
 
 # Performance
 echo IncludeOptional conf.performance.d/*.conf >> /etc/httpd/conf/httpd.conf
@@ -139,7 +140,7 @@ systemctl start httpd.service
 chown -R vagrant:vagrant /var/www/html
 
 # Move Drupal into place
-cp /vagrant/drupal-7/ /var/www/html/ -rf
+cp /vagrant/scripts/drupal-7/ /var/www/html/ -rf
 # Fix date timezone errors
 sed -i 's#;date.timezone =#date.timezone = "America/New_York"#g' /etc/php.ini
 
