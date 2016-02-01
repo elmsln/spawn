@@ -157,7 +157,7 @@ ln -s /usr/local/bin/composer /usr/bin/composer
 
 # TODO CREATE CRON
 #ln -s /var/www/spawn/scripts/spawn-job /usr/local/bin/spawn-job
-
+mysql -u root -h localhost -e "create database if not exists test;"
 ##### - OUTRO - #####
 end="$(timestamp)"
 spawnecho "This took $(expr $end - $start) seconds to complete the whole thing!"
