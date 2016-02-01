@@ -129,7 +129,8 @@ systemctl enable mysqld.service
 systemctl enable php-fpm.service
 
 # This is moslty for DEV
-sudo systemctl stop firewalld.service
+systemctl stop firewalld.service
+systemctl disable firewalld.service
 
 # Start all the services we use.
 systemctl start php-fpm.service
