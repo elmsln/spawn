@@ -29,6 +29,7 @@ yes | yum -y install curl uuid patch git nano gcc make mysql mysql-server httpd
 rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 wget http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
 rpm -Uvh remi-release-7.rpm
+rm remi-release-7.rpm -rf
 
 # get latest mysql
 yum install -y http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm 
