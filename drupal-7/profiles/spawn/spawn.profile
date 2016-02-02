@@ -72,15 +72,18 @@ function spawn_client_form_validate($form, &$form_state) {
 function spawn_client_form_submit($form, &$form_state) {
   $values = $form_state['values'];
 
-  // Setup the user account array to programatically create a new user.
+
   $aws_configure = array(
     'key' => $values['aws_key'],
     'secret' => $values['aws_secret'],
     'region' => $values['aws_region'],
     'output' => $values['aws_output'],
   );
-  $configure = '';
-  $configure .= shell_exec('ls -la');
-  $configure .= shell_exec('whoami');
-  echo "<pre>$configure</pre>";
+
+  $myfile = fopen("/usr/local/bin/docs/newfile.txt", "w") or die("Unable to open file!");
+  fwrite($myfile, $aws_configure['key']);
+  fwrite($myfile, $aws_configure['secret']);
+  fwrite($myfile, $aws_configure['region']);
+  fwrite($myfile, $aws_configure['output']);
+  fclose($myfile);
 }
