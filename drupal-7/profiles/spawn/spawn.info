@@ -13,7 +13,6 @@ exclusive = true
 
 ; Install required core modules.
 dependencies[] = block
-dependencies[] = comment
 dependencies[] = dblog
 dependencies[] = field
 dependencies[] = field_ui
@@ -26,14 +25,11 @@ dependencies[] = options
 dependencies[] = path
 dependencies[] = rdf
 dependencies[] = search
-dependencies[] = shortcut
 dependencies[] = taxonomy
 
 ; Administration
 dependencies[] = admin_menu
 dependencies[] = admin_menu_toolbar
-dependencies[] = admin_menu_dropdown
-dependencies[] = admin_theme
 dependencies[] = module_filter
 
 ; Chaos tool suite
@@ -56,16 +52,13 @@ dependencies[] = prepopulate
 
 ; Menu
 dependencies[] = menu_attributes
-dependencies[] = special_menu_items
 
 ; Other
-
 dependencies[] = better_formats
 dependencies[] = diff
 dependencies[] = elements
 dependencies[] = libraries
 dependencies[] = pathauto
-dependencies[] = placeholder
 dependencies[] = restws
 dependencies[] = restws_basic_auth
 dependencies[] = role_export
@@ -77,7 +70,6 @@ dependencies[] = transliteration
 ; Performance and scalability
 dependencies[] = entitycache
 
-
 ; UUID
 dependencies[] = uuid
 
@@ -85,18 +77,8 @@ dependencies[] = uuid
 dependencies[] = addanother
 dependencies[] = back_to_top
 
-
 ; Views
 dependencies[] = better_exposed_filters
 dependencies[] = views
 dependencies[] = views_autocomplete_filters
 dependencies[] = views_bulk_operations
-
-; Features
-dependencies[] = features
-dependencies[] = features_override
-
-
-
-; FILES
-files[] = spawn.profile
