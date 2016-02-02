@@ -1,11 +1,180 @@
 <?php
+
 /**
- * Implement hook_install().
- *
- * Perform actions to set up the site for this profile.
+ * Implements hook_install_tasks().
  */
-function profilename_install() {
-  include_once DRUPAL_ROOT . '/profiles/standard/standard.install';
-  standard_install();
+function spawn_install_tasks() {
+  //make sure we have more memory than 196M. if not lets try to increase it.
+  if (ini_get('memory_limit') != '-1' && ini_get('memory_limit') <= '196M' && ini_get('memory_limit') >= '128M') {
+    ini_set('memory_limit', '196M');
+  }
+
+  $tasks = array(
+    'spawn_client_form' => array(
+      'display_name' => st('AWS Configure'),
+      'type' => 'form',
+    ),
+  );
+  return $tasks;
 }
-?>
+
+
+/**
+ * Implements hook_install_tasks_alter().
+ */
+function spawn_install_tasks_alter(&$tasks, $install_state) {
+  global $install_state;
+  $tasks['install_profile_modules']['display_name'] = st('Install SPAWN');
+
+  // Skip profile selection step.
+  $tasks['install_select_profile']['display'] = FALSE;
+
+  // Skip language selection install step and default language to English.
+  $tasks['install_select_locale']['display'] = FALSE;
+  $tasks['install_select_locale']['run'] = INSTALL_TASK_SKIP;
+  $install_state['parameters']['locale'] = 'en';
+
+  // Override "install_finished" task to redirect people to home page.
+  $tasks['install_finished']['function'] = 'spawn_install_finished';
+}
+
+/**
+ * AWS Credentials Form.
+ */
+function spawn_client_form() {
+  $form = array();
+  $form['intro'] = array(
+    '#markup' => '<p>' . st('This will configure your AWS IAM user credentials API Key and Secret') . '</p>',
+  );
+  $form['aws_key'] = array(
+    '#type' => 'textfield',
+    '#title' => st('AWS Access Key ID'),
+    '#required' => TRUE,
+  );
+  $form['aws_secret'] = array(
+    '#type' => 'password',
+    '#title' => st('AWS Secret Access Key'),
+    '#required' => TRUE,
+  );
+  $form['aws_region'] = array(
+    '#type' => 'textfield',
+    '#title' => st('Default region name'),
+  );
+  $form['aws_output'] = array(
+    '#type' => 'textfield',
+    '#title' => st('Default output format'),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => st('Continue'),
+  );
+  return $form;
+}
+
+function spawn_client_form_validate($form, &$form_state) {
+  // todo validate
+}
+
+function spawn_client_form_submit($form, &$form_state) {
+  $values = $form_state['values'];
+
+
+  $aws_configure = array(
+    'key' => $values['aws_key'],
+    'secret' => $values['aws_secret'],
+    'region' => $values['aws_region'],
+    'output' => $values['aws_output'],
+  );
+
+  $myfile = fopen("/usr/local/bin/docs/newfile.txt", "w") or die("Unable to open file!");
+  fwrite($myfile, $aws_configure['key']. "/n");
+  fwrite($myfile, $aws_configure['secret']. "/n");
+  fwrite($myfile, $aws_configure['region']. "/n");
+  fwrite($myfile, $aws_configure['output']. "/n");
+  fclose($myfile);
+}
+
+/**
+ * Implements hook_install().
+ */
+function spawn_install() {
+  // Enable the Origins theme and set it as the default.
+  theme_enable(array('ember'));
+
+  // The Bartik theme is automatically enabled during installation. Disable it.
+  db_update('system')
+    ->fields(array('status' => 0))
+    ->condition('type', 'theme')
+    ->condition('name', 'bartik')
+    ->execute();
+
+  // Set Commons Origins as the default theme.
+  variable_set('theme_default', 'ember');
+
+  // Set Ember as the administration theme.
+  variable_set('admin_theme', 'ember');
+
+  // Do not use the administration theme when editing or creating content.
+  variable_set('node_admin_theme', TRUE);
+
+  // Set jQuery version to 1.7
+  variable_set('jquery_update_jquery_version', '1.8');
+}
+
+/**
+ * Override of install_finished() without the useless text.
+ */
+function spawn_install_finished(&$install_state) {
+  drupal_set_title(st('@drupal installation complete', array('@drupal' => drupal_install_profile_distribution_name())), PASS_THROUGH);
+  $messages = drupal_set_message();
+
+  // Remember the profile which was used.
+  variable_set('install_profile', drupal_get_profile());
+  variable_set('install_task', 'done');
+
+
+  // Flush all caches to ensure that any full bootstraps during the installer
+  // do not leave stale cached data, and that any content types or other items
+  // registered by the installation profile are registered correctly.
+  drupal_flush_all_caches();
+
+  // Installation profiles are always loaded last
+  db_update('system')
+    ->fields(array('weight' => 1000))
+    ->condition('type', 'module')
+    ->condition('name', drupal_get_profile())
+    ->execute();
+
+  // Cache a fully-built schema.
+  drupal_get_schema(NULL, TRUE);
+
+  // Run cron to populate update status tables (if available) so that users
+  // will be warned if they've installed an out of date Drupal version.
+  // Will also trigger indexing of profile-supplied content or feeds.
+  drupal_cron_run();
+
+  variable_set('title_node', array(
+    'auto_attach' => array('title' => 'title'),
+    'hide_label' => array('page' => 0, 'entity' => 0),
+  ));
+
+  if (isset($messages['error'])) {
+    $output = '<p>' . (isset($messages['error']) ? st('Review the messages above before visiting <a href="@url">your new site</a>.', array('@url' => url(''))) : st('<a href="@url">Visit your new site</a>.', array('@url' => url('')))) . '</p>';
+    return $output;
+  }
+  else {
+    // Since any module can add a drupal_set_message, this can bug the user
+    // when we redirect him to the front page. For a better user experience,
+    // remove all the message that are only "notifications" message.
+    drupal_get_messages('status', TRUE);
+    drupal_get_messages('completed', TRUE);
+    // Migrate adds its messages under the wrong type, see #1659150.
+    drupal_get_messages('ok', TRUE);
+
+    // If we don't install drupal using Drush, redirect the user to the front
+    // page.
+    if (!drupal_is_cli()) {
+      drupal_goto('');
+    }
+  }
+}
