@@ -71,6 +71,10 @@ echo IncludeOptional conf.performance.d/*.conf >> /etc/httpd/conf/httpd.conf
 ##### - END SERVER LEVEL - #####
 
 ##### - PACKAGE LEVEL - #####
+
+# Apache
+cat /vagrant/scripts/apache/html.conf > /etc/httpd/conf.d/html.conf
+
 # PHP
 # The first pool
 cat /vagrant/scripts/php/www.conf > /etc/php-fpm.d/www.conf
@@ -157,6 +161,8 @@ chmod -R 750 /usr/local/bin/docs
 
 # Fix date timezone errors
 sed -i 's#;date.timezone =#date.timezone = "America/New_York"#g' /etc/php.ini
+
+#AllowOverride All
 
 # Install Drush globally.
 curl -sS https://getcomposer.org/installer | php
