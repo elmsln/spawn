@@ -144,7 +144,7 @@ systemctl start httpd.service
 chown -R vagrant:vagrant /var/www/html
 
 # Move Drupal into place
-cp /vagrant/drupal-7/ /var/www/html/ -rf
+cp /vagrant/drupal-7/ /var/www/html/drupal-7 -rf
 
 chown -R vagrant:vagrant /var/www/html/drupal-7
 chown -R apache:apache /var/www/html/drupal-7/sites/default
