@@ -81,9 +81,9 @@ function spawn_client_form_submit($form, &$form_state) {
   );
 
   $myfile = fopen("/usr/local/bin/docs/newfile.txt", "w") or die("Unable to open file!");
-  fwrite($myfile, $aws_configure['key']);
-  fwrite($myfile, $aws_configure['secret']);
-  fwrite($myfile, $aws_configure['region']);
-  fwrite($myfile, $aws_configure['output']);
+  fwrite($myfile, $aws_configure['key']\n);
+  fwrite($myfile, $aws_configure['secret']\n);
+  fwrite($myfile, $aws_configure['region']\n);
+  fwrite($myfile, $aws_configure['output']\n);
   fclose($myfile);
 }
