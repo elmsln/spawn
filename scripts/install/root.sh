@@ -149,6 +149,11 @@ cp /vagrant/drupal-7/ /var/www/html/drupal-7 -rf
 chown -R vagrant:vagrant /var/www/html/drupal-7
 chown -R apache:apache /var/www/html/drupal-7/sites/default
 
+# Create Docs Directory for Creds and Lock it down.
+mkdir -p /usr/local/bin/docs
+chown -R apache:spawn /usr/local/bin/docs
+chmod -R 750 /usr/local/bin/docs
+
 # Fix date timezone errors
 sed -i 's#;date.timezone =#date.timezone = "America/New_York"#g' /etc/php.ini
 
