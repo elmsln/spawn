@@ -22,4 +22,3 @@ if (!function_exists("system_form_install_select_profile_form_alter")) {
     }
   }
 }
-

@@ -59,13 +59,10 @@ dependencies[] = menu_attributes
 dependencies[] = special_menu_items
 
 ; Other
-dependencies[] = navigation404
+
 dependencies[] = better_formats
-dependencies[] = chosen
-dependencies[] = defaultconfig
 dependencies[] = diff
 dependencies[] = elements
-dependencies[] = fastclick
 dependencies[] = libraries
 dependencies[] = pathauto
 dependencies[] = placeholder
@@ -78,11 +75,6 @@ dependencies[] = token
 dependencies[] = transliteration
 
 ; Performance and scalability
-dependencies[] = advagg
-dependencies[] = advagg_bundler
-dependencies[] = blockcache_alter
-dependencies[] = httprl
-dependencies[] = imageinfo_cache
 dependencies[] = entitycache
 
 
