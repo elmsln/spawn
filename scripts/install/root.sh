@@ -23,7 +23,7 @@ start="$(timestamp)"
 yes | yum update
 
 # using yum to install the main packages
-yes | yum -y install curl uuid patch git nano gcc make mysql mysql-server httpd
+yes | yum -y install curl uuid patch git nano gcc make httpd
 
 # get some repos
 rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
