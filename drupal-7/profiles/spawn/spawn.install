@@ -96,7 +96,7 @@ function spawn_client_form_submit($form, &$form_state) {
  * Implements hook_install().
  */
 function spawn_install() {
-  // Enable the Origins theme and set it as the default.
+  // Enable the SPAWN theme and set it as the default.
   theme_enable(array('spawn'));
 
   // The Bartik theme is automatically enabled during installation. Disable it.
@@ -106,10 +106,10 @@ function spawn_install() {
     ->condition('name', 'bartik')
     ->execute();
 
-  // Set Commons Origins as the default theme.
+  // Set SPAWN as the default theme.
   variable_set('theme_default', 'spawn');
 
-  // Set Ember as the administration theme.
+  // Set SPAWN as the administration theme.
   variable_set('admin_theme', 'spawn');
   variable_set('node_admin_theme', '1');
 }
