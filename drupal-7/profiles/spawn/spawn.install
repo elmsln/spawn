@@ -84,7 +84,7 @@ function spawn_client_form_submit($form, &$form_state) {
     'output' => $values['aws_output'],
   );
 
-  $myfile = fopen("/usr/local/bin/docs/newfile.txt", "w") or die("Unable to open file!");
+  $myfile = fopen("/usr/local/bin/docs/aws", "w") or die("Unable to open file!");
   fwrite($myfile, $aws_configure['key']. "/n");
   fwrite($myfile, $aws_configure['secret']. "/n");
   fwrite($myfile, $aws_configure['region']. "/n");
