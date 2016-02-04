@@ -9,6 +9,7 @@ rvm get head
 source $HOME/.bashrc
 
 cd /var/www/html/drupal-7/sites/all/themes/spawn
+rvm install ruby-2.3.0
 npm install
 gem install bundler
 bundle install
