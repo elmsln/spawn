@@ -7,3 +7,9 @@ gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB8
 source /home/vagrant/.rvm/scripts/rvm
 rvm get head
 source $HOME/.bashrc
+
+cd /var/www/html/drupal-7/sites/all/themes/spawn
+npm install
+gem install bundler
+bundle install
+grunt build
