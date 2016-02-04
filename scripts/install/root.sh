@@ -174,7 +174,6 @@ curl --silent --location https://rpm.nodesource.com/setup | bash -
 yum -y install nodejs
 yum install gcc-c++ make
 yum groupinstall 'Development Tools'
-npm install -g grunt-cli
 npm install -g jasmine-node
 
 # TODO CREATE CRON
