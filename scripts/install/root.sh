@@ -169,6 +169,14 @@ curl -sS https://getcomposer.org/installer | php
 sudo mv composer.phar /usr/local/bin/composer
 ln -s /usr/local/bin/composer /usr/bin/composer
 
+# Install Node Js
+curl --silent --location https://rpm.nodesource.com/setup | bash -
+yum -y install nodejs
+yum install gcc-c++ make
+yum groupinstall 'Development Tools'
+npm install -g grunt-cli
+npm install -g jasmine-node
+
 # TODO CREATE CRON
 #ln -s /var/www/spawn/scripts/spawn-job /usr/local/bin/spawn-job
 mysql -u root -h localhost -e "create database if not exists test;"
